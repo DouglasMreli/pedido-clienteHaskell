@@ -1,40 +1,74 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+
+import System.IO
+import Text.XHtml.Frameset (body)
+
 
 type Cliente = (String,String,Integer)
 
+clienteToString :: Cliente -> String
+clienteToString (nome,rua,num) = nome ++ " " ++ rua ++ " " ++ show num
+
+fulano :: Cliente
 fulano = ("Fulano", "Rua a", 9999)
+ciclano :: Cliente
 ciclano = ("Ciclano", "Rua b", 8888)
 
 clientes :: [Cliente]
 clientes = [fulano, ciclano]
 
-type Data = (Integer, Integer, Integer)
+type Date = (Integer, Integer, Integer)
 
-date :: Data
+date :: Date
 date = (14,9,2021)
 
-type Pedido = (Integer, Double, Cliente, Data)
+dateToString :: Date -> String
+dateToString (dia,mes,ano) = show dia ++ " " ++ show mes ++ " " ++ show ano 
+
+type Pedido = (Integer, Double, Cliente, Date)
 pedidos :: [Pedido]
 pedidos = [(123, 20.0, fulano, date)]
-            
 
-type PedidoExpresso = (Integer, Double, Cliente, Data, Data)
+pedidoToString :: Pedido -> String
+pedidoToString (num,preco,cliente,date) = show num ++ " " ++ show  preco ++ " " ++ clienteToString cliente ++ " " ++ dateToString date
 
+type PedidoExpresso = (Integer, Double, Cliente, Date, Date)
+
+dateAtrasado :: Date
 dateAtrasado = (15,9,2021)
+pedidoExpAtrasado :: PedidoExpresso
 pedidoExpAtrasado = (555, 20.0*1.2, ciclano, date, dateAtrasado)
 
 entregueNoPrazo :: PedidoExpresso -> Bool
-entregueNoPrazo (num, preco, ciclano, date, dateEntrega) = date == dateEntrega
+entregueNoPrazo (_, _, _, date, dateEntrega) = date == dateEntrega
 
 foiEntregue :: Bool -> String
 foiEntregue x
-            | x = "Foi entregue no prazo" 
+            | x = "Foi entregue no prazo"
             | otherwise = "Nao foi entregue no prazo"
+
+
+escreverCliente :: [Cliente] -> IO ()
+escreverCliente clientes = do
+            arq <- openFile "cliente.txt" AppendMode
+            hPrint arq clientes
+            hFlush  arq
+            hClose arq
+
+
+escreverPedido :: [Pedido] -> IO ()
+escreverPedido pedidos = do
+    arq <- openFile "pedido.txt" AppendMode
+    hPrint arq pedidos
+    hFlush  arq
+    hClose arq
+
 
 main :: IO ()
 main = do
     
-    print(pedidoExpAtrasado)
-    let foientregue = foiEntregue (entregueNoPrazo pedidoExpAtrasado)
-    print(foientregue)
-    
-    
+    escreverCliente clientes
+    escreverPedido pedidos
+   
+
+
