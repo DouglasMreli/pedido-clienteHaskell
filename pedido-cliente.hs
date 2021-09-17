@@ -1,8 +1,7 @@
-import Data.Char (digitToInt)
+import Data.Char ()
 import System.IO
-import Text.XHtml.Frameset (body)
-import Text.ParserCombinators.Parsec (digit)
-import GHC.IO.Handle.Text (hGetContents)
+import Text.ParserCombinators.Parsec ()
+import GHC.IO.Handle.Text ()
 
 
 type Cliente = (String,String,Integer)
