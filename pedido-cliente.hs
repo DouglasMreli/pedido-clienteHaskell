@@ -1,7 +1,8 @@
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-
+import Data.Char (digitToInt)
 import System.IO
 import Text.XHtml.Frameset (body)
+import Text.ParserCombinators.Parsec (digit)
+import GHC.IO.Handle.Text (hGetContents)
 
 
 type Cliente = (String,String,Integer)
@@ -23,7 +24,7 @@ date :: Date
 date = (14,9,2021)
 
 dateToString :: Date -> String
-dateToString (dia,mes,ano) = show dia ++ " " ++ show mes ++ " " ++ show ano 
+dateToString (dia,mes,ano) = show dia ++ " " ++ show mes ++ " " ++ show ano
 
 type Pedido = (Integer, Double, Cliente, Date)
 pedidos :: [Pedido]
@@ -38,6 +39,8 @@ dateAtrasado :: Date
 dateAtrasado = (15,9,2021)
 pedidoExpAtrasado :: PedidoExpresso
 pedidoExpAtrasado = (555, 20.0*1.2, ciclano, date, dateAtrasado)
+
+pedidosExp = [pedidoExpAtrasado]
 
 entregueNoPrazo :: PedidoExpresso -> Bool
 entregueNoPrazo (_, _, _, date, dateEntrega) = date == dateEntrega
@@ -63,28 +66,50 @@ escreverPedido pedidos = do
     hFlush  arq
     hClose arq
 
-
-lerCLiente:: [Cliente] -> IO ()
-lerCliente clientes = do
-    arq <- readFile "cliente.txt" ReadMode
-    hPrint arq clientes
-    hFlush arq
+escreverPedidoExp :: [PedidoExpresso] -> IO ()
+escreverPedidoExp pedidosExp = do
+    arq <- openFile "pedidoExpresso.txt" AppendMode
+    hPrint arq pedidosExp
+    hFlush  arq
     hClose arq
 
 
-lerPedido:: [Pedido] -> IO ()
-lerPedido pedidios = do
-    arq <- readFile "pedido.txt" ReadMode
-    hPrint arq pedidos
-    hFlush arq
-    hClose arq
 
+
+castCliente = read::String->[Cliente]
+
+lerCliente :: IO [Cliente]
+lerCliente = do
+    conteudo <- readFile "cliente.txt"
+    let x = castCliente conteudo
+    return x 
+
+
+castPedido = read::String->[Pedido]
+
+
+lerPedido :: IO [Pedido]
+lerPedido = do
+    conteudo <- readFile "pedido.txt"
+    let x = castPedido conteudo
+    return x 
+
+
+castPedidoExp = read::String->[PedidoExpresso]
+
+lerPedidoExp :: IO [PedidoExpresso]
+lerPedidoExp = do
+    conteudo <- readFile "pedidoExp.txt"
+    let x = castPedidoExp conteudo
+    return x 
 
 main :: IO ()
 main = do
-    
+    print (map clienteToString clientes)
+    print (map pedidoToString pedidos)
+    print (foiEntregue (entregueNoPrazo pedidoExpAtrasado))
+
     escreverCliente clientes
     escreverPedido pedidos
-    lerCliente clientes
-    lerPedido pedidos
-  
+    escreverPedidoExp pedidosExp
+    
