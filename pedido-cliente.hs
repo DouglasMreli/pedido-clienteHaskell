@@ -64,11 +64,27 @@ escreverPedido pedidos = do
     hClose arq
 
 
+lerCLiente:: [Cliente] -> IO ()
+lerCliente clientes = do
+    arq <- readFile "cliente.txt" ReadMode
+    hPrint arq clientes
+    hFlush arq
+    hClose arq
+
+
+lerPedido:: [Pedido] -> IO ()
+lerPedido pedidios = do
+    arq <- readFile "pedido.txt" ReadMode
+    hPrint arq pedidos
+    hFlush arq
+    hClose arq
+
+
 main :: IO ()
 main = do
     
     escreverCliente clientes
     escreverPedido pedidos
-   
-
-
+    lerCliente clientes
+    lerPedido pedidos
+  
