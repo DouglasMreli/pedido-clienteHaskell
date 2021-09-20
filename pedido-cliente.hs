@@ -1,5 +1,6 @@
 import Data.Char ()
 import System.IO
+import Text.XHtml.Frameset ()
 import Text.ParserCombinators.Parsec ()
 import GHC.IO.Handle.Text ()
 
@@ -7,7 +8,7 @@ import GHC.IO.Handle.Text ()
 type Cliente = (String,String,Integer)
 
 clienteToString :: Cliente -> String
-clienteToString (nome,rua,num) = nome ++ " " ++ rua ++ " " ++ show num
+clienteToString (nome,rua,num) = nome ++ "\n" ++ rua ++ "\n" ++ show num
 
 fulano :: Cliente
 fulano = ("Fulano", "Rua a", 9999)
@@ -23,16 +24,19 @@ date :: Date
 date = (14,9,2021)
 
 dateToString :: Date -> String
-dateToString (dia,mes,ano) = show dia ++ " " ++ show mes ++ " " ++ show ano
+dateToString (dia,mes,ano) = show dia ++ "\\" ++ show mes ++ "\\" ++ show ano
 
 type Pedido = (Integer, Double, Cliente, Date)
 pedidos :: [Pedido]
 pedidos = [(123, 20.0, fulano, date)]
 
 pedidoToString :: Pedido -> String
-pedidoToString (num,preco,cliente,date) = show num ++ " " ++ show  preco ++ " " ++ clienteToString cliente ++ " " ++ dateToString date
+pedidoToString (num,preco,cliente,date) = show num ++ "\n" ++ show  preco ++ "\n" ++ clienteToString cliente ++ "\n" ++ dateToString date
 
 type PedidoExpresso = (Integer, Double, Cliente, Date, Date)
+
+pedidoExpToString :: PedidoExpresso -> String
+pedidoExpToString (num,preco,cliente,date, entrega) = pedidoToString (num,preco,cliente,date) ++ "\n" ++ foiEntregue (entregueNoPrazo (num,preco,cliente,date, entrega))
 
 dateAtrasado :: Date
 dateAtrasado = (15,9,2021)
@@ -73,8 +77,6 @@ escreverPedidoExp pedidosExp = do
     hClose arq
 
 
-
-
 castCliente = read::String->[Cliente]
 
 lerCliente :: IO [Cliente]
@@ -107,7 +109,8 @@ main = do
     print (map clienteToString clientes)
     print (map pedidoToString pedidos)
     print (foiEntregue (entregueNoPrazo pedidoExpAtrasado))
-
+    putStrLn (pedidoExpToString pedidoExpAtrasado)
+    
     escreverCliente clientes
     escreverPedido pedidos
     escreverPedidoExp pedidosExp
